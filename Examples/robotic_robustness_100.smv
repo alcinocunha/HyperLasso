@@ -1,3 +1,4 @@
+-- I don't think this is equivalent to the original example in HyperQB, but it is much simpler to define...
 MODULE main
 VAR
     x_axis: 0..9;

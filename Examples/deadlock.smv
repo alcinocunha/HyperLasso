@@ -1,0 +1,4 @@
+MODULE main
+VAR s : boolean;
+TRANS s = TRUE
+HLTLSPEC forall A . G (s[A] = TRUE)

@@ -1,0 +1,5 @@
+MODULE main
+VAR
+    state : 0..0;
+    green_left : boolean;
+    green_right : boolean;

@@ -1,0 +1,80 @@
+MODULE main
+FROZENVAR
+    from_0 : 0..1;
+    to_0 : 0..1;
+    waiting_0_left : boolean;
+    waiting_0_right : boolean;
+    green_0_left : boolean;
+    green_0_right : boolean;
+    from_1 : 0..1;
+    to_1 : 0..1;
+    waiting_1_left : boolean;
+    waiting_1_right : boolean;
+    green_1_left : boolean;
+    green_1_right : boolean;
+    from_2 : 0..1;
+    to_2 : 0..1;
+    waiting_2_left : boolean;
+    waiting_2_right : boolean;
+    green_2_left : boolean;
+    green_2_right : boolean;
+    from_3 : 0..1;
+    to_3 : 0..1;
+    waiting_3_left : boolean;
+    waiting_3_right : boolean;
+    green_3_left : boolean;
+    green_3_right : boolean;
+    from_4 : 0..1;
+    to_4 : 0..1;
+    waiting_4_left : boolean;
+    waiting_4_right : boolean;
+    green_4_left : boolean;
+    green_4_right : boolean;
+    from_5 : 0..1;
+    to_5 : 0..1;
+    waiting_5_left : boolean;
+    waiting_5_right : boolean;
+    green_5_left : boolean;
+    green_5_right : boolean;
+    from_6 : 0..1;
+    to_6 : 0..1;
+    waiting_6_left : boolean;
+    waiting_6_right : boolean;
+    green_6_left : boolean;
+    green_6_right : boolean;
+    from_7 : 0..1;
+    to_7 : 0..1;
+    waiting_7_left : boolean;
+    waiting_7_right : boolean;
+    green_7_left : boolean;
+    green_7_right : boolean;
+VAR
+INIT
+    (from_0 = from_1 -> (waiting_0_left != waiting_1_left | waiting_0_right != waiting_1_right)) &
+    (from_0 = from_2 -> (waiting_0_left != waiting_2_left | waiting_0_right != waiting_2_right)) &
+    (from_0 = from_3 -> (waiting_0_left != waiting_3_left | waiting_0_right != waiting_3_right)) &
+    (from_0 = from_4 -> (waiting_0_left != waiting_4_left | waiting_0_right != waiting_4_right)) &
+    (from_0 = from_5 -> (waiting_0_left != waiting_5_left | waiting_0_right != waiting_5_right)) &
+    (from_0 = from_6 -> (waiting_0_left != waiting_6_left | waiting_0_right != waiting_6_right)) &
+    (from_0 = from_7 -> (waiting_0_left != waiting_7_left | waiting_0_right != waiting_7_right)) &
+    (from_1 = from_2 -> (waiting_1_left != waiting_2_left | waiting_1_right != waiting_2_right)) &
+    (from_1 = from_3 -> (waiting_1_left != waiting_3_left | waiting_1_right != waiting_3_right)) &
+    (from_1 = from_4 -> (waiting_1_left != waiting_4_left | waiting_1_right != waiting_4_right)) &
+    (from_1 = from_5 -> (waiting_1_left != waiting_5_left | waiting_1_right != waiting_5_right)) &
+    (from_1 = from_6 -> (waiting_1_left != waiting_6_left | waiting_1_right != waiting_6_right)) &
+    (from_1 = from_7 -> (waiting_1_left != waiting_7_left | waiting_1_right != waiting_7_right)) &
+    (from_2 = from_3 -> (waiting_2_left != waiting_3_left | waiting_2_right != waiting_3_right)) &
+    (from_2 = from_4 -> (waiting_2_left != waiting_4_left | waiting_2_right != waiting_4_right)) &
+    (from_2 = from_5 -> (waiting_2_left != waiting_5_left | waiting_2_right != waiting_5_right)) &
+    (from_2 = from_6 -> (waiting_2_left != waiting_6_left | waiting_2_right != waiting_6_right)) &
+    (from_2 = from_7 -> (waiting_2_left != waiting_7_left | waiting_2_right != waiting_7_right)) &
+    (from_3 = from_4 -> (waiting_3_left != waiting_4_left | waiting_3_right != waiting_4_right)) &
+    (from_3 = from_5 -> (waiting_3_left != waiting_5_left | waiting_3_right != waiting_5_right)) &
+    (from_3 = from_6 -> (waiting_3_left != waiting_6_left | waiting_3_right != waiting_6_right)) &
+    (from_3 = from_7 -> (waiting_3_left != waiting_7_left | waiting_3_right != waiting_7_right)) &
+    (from_4 = from_5 -> (waiting_4_left != waiting_5_left | waiting_4_right != waiting_5_right)) &
+    (from_4 = from_6 -> (waiting_4_left != waiting_6_left | waiting_4_right != waiting_6_right)) &
+    (from_4 = from_7 -> (waiting_4_left != waiting_7_left | waiting_4_right != waiting_7_right)) &
+    (from_5 = from_6 -> (waiting_5_left != waiting_6_left | waiting_5_right != waiting_6_right)) &
+    (from_5 = from_7 -> (waiting_5_left != waiting_7_left | waiting_5_right != waiting_7_right)) &
+    (from_6 = from_7 -> (waiting_6_left != waiting_7_left | waiting_6_right != waiting_7_right))

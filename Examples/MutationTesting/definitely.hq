@@ -1,0 +1,1 @@
+Forall Machine . Exists Correct . Exists Mutant . !(G (action[Machine] = action[Correct] & action[Machine] = action[Mutant]) -> F (beverage[Correct] != beverage[Mutant]))

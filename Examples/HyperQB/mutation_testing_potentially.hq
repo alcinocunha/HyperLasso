@@ -1,2 +1,0 @@
--- Property different from HyperQB, this one is based on the original paper
-Forall A . Exists B . !((mutation[A] & ((!mutation[B] & G (action[A] = action[B])) -> F (beverage[A] != beverage[B]))))

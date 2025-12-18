@@ -1,0 +1,1 @@
+Forall A . Exists B . G(pc_0[A] = pc_1[B] & pc_1[A] = pc_2[B] & pc_2[A] = pc_3[B] & pc_3[A] = pc_4[B] & pc_4[A] = pc_0[B])

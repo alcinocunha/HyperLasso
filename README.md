@@ -8,7 +8,7 @@ The user specifies the exact length of the traces to be checked. Since we assume
 
 HyperLasso is implemented in Python and translates the model and the HyperLTL property into a set of constraints using quantifiers that are solved using the Z3 SMT solver. Unlike other existing bounded model checkers for HyperLTL (namely [HyperQB](https://github.com/HyperQB/HyperRUSTY/)), HyperLasso fully supports loop conditions so the results are complete for the given trace length.
 
-Models should be defined in the [SMV language](https://nusmv.fbk.eu) and the HyperLTL property should be specified in a separate file following the HyperQB syntax. For the moment, HyperLasso only support declarative models defined using the `INIT`, `TRANS`, and `INVAR` sections. For most examples, this actually results in more concise models than using explicit models defined with the `ASSIGN` section.
+Models should be defined in the [SMV language](https://nusmv.fbk.eu) and the HyperLTL property should be specified in a separate file following the HyperQB syntax. Models can be defined with explicit assignments using `ASSIGNS` or declaratively using the `INIT`, `TRANS`, and `INVAR` sections. For most examples, the declarative style actually results in more concise models than using explicit assignments.
 
 ## Usage
 

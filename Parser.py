@@ -22,8 +22,9 @@ class NodeType(Enum):
     UNARY_OP = auto()
     BINARY_OP = auto()
     NEXT_EXPR = auto()
-    RANGE_EXPR = auto()
+    CASE_EXPR = auto()
     QUANTIFIED_EXPR = auto()
+    SET_EXPR = auto()
     
     # Types
     BOOLEAN_TYPE = auto()
@@ -31,6 +32,9 @@ class NodeType(Enum):
     
     # Declarations
     VAR_DECL = auto()
+
+    # Assigns
+    ASSIGNMENT = auto()
     
     # Module
     MODULE = auto()
@@ -122,6 +126,30 @@ class NextExpr(ASTNode):
     
     def __repr__(self):
         return f"next({self.expr})"
+    
+@dataclass
+class CaseExpr(ASTNode):
+    cases: list  # list of (condition, result) tuples
+    
+    def __init__(self, cases: list):
+        super().__init__(NodeType.CASE_EXPR)
+        self.cases = cases
+    
+    def __repr__(self):
+        cases_str = " ".join([f"{cond} : {res};" for cond, res in self.cases])
+        return f"case {cases_str} esac"
+
+@dataclass
+class SetExpr(ASTNode):
+    elements: list  # list of ASTNode elements
+    
+    def __init__(self, elements: list):
+        super().__init__(NodeType.SET_EXPR)
+        self.elements = elements
+    
+    def __repr__(self):
+        elems_str = ", ".join([str(elem) for elem in self.elements])
+        return f"{{ {elems_str} }}"
 
 # Type nodes
 @dataclass
@@ -159,6 +187,25 @@ class VarDecl(ASTNode):
     def __repr__(self):
         return f"{self.name} : {self. var_type}"
 
+@dataclass
+class Assignment(ASTNode):
+    var_name: str
+    kind : str  # 'init' or 'next' or 'invar'
+    expr: ASTNode
+    
+    def __init__(self, var_name: str, kind: str, expr: ASTNode):
+        super().__init__(NodeType.ASSIGNMENT)
+        self.var_name = var_name
+        self.kind = kind
+        self.expr = expr
+    
+    def __repr__(self):
+        if self.kind == 'next':
+            return f"next({self.var_name}) := {self.expr};"
+        elif self.kind == 'init':
+            return f"init({self.var_name}) := {self.expr};"
+        else:
+            return f"{self.var_name} := {self.expr};"
 
 @dataclass
 class QuantifiedExpr(ASTNode):
@@ -180,18 +227,20 @@ class Module(ASTNode):
     name: str
     var_decls: list = field(default_factory=list)
     frozenvar_decls: list = field(default_factory=list)
-    init_expr: Optional[ASTNode] = None
-    trans_expr: Optional[ASTNode] = None
-    invar_expr: Optional[ASTNode] = None
+    init_expr: list = field(default_factory=list)
+    trans_expr: list = field(default_factory=list)
+    invar_expr: list = field(default_factory=list)
+    assignments: list = field(default_factory=list)
     
     def __init__(self, name:  str):
         super().__init__(NodeType.MODULE)
         self.name = name
         self.var_decls = []
         self.frozenvar_decls = []
-        self.init_expr = None
-        self.trans_expr = None
-        self.invar_expr = None
+        self.init_expr = []
+        self.trans_expr = []
+        self.invar_expr = []
+        self.assignments = []
     
     def __repr__(self):
         parts = [f"MODULE {self.name}"]
@@ -204,11 +253,21 @@ class Module(ASTNode):
             for decl in self.var_decls:
                 parts.append(f"    {decl};")
         if self.init_expr:
-            parts.append(f"INIT\n    {self.init_expr}")
+            parts.append("INIT")
+            for expr in self.init_expr:
+                parts.append(f"    {expr}")
         if self.trans_expr:
-            parts.append(f"TRANS\n    {self. trans_expr}")
+            parts.append("TRANS")
+            for expr in self.trans_expr:
+                parts.append(f"    {expr}")
         if self.invar_expr:
-            parts.append(f"INVAR\n    {self.invar_expr}")
+            parts.append("INVAR")
+            for expr in self.invar_expr:
+                parts.append(f"    {expr}")
+        if self.assignments:
+            parts.append("ASSIGN")
+            for assignment in self.assignments:
+                parts.append(f"    {assignment}")
         return "\n".join(parts)
 
 # ============================================================================
@@ -223,11 +282,14 @@ class TokenType(Enum):
     INIT = auto()
     TRANS = auto()
     INVAR = auto()
+    ASSIGN = auto()
     NEXT = auto()
+    INITVAR = auto()
     TRUE = auto()
     FALSE = auto()
     BOOLEAN = auto()
-    HLTLSPEC = auto()
+    CASE = auto()
+    ESAC = auto()
     
     # Literals and identifiers
     INTEGER = auto()
@@ -245,6 +307,7 @@ class TokenType(Enum):
     RBRACE = auto()      # }
     LBRACKET = auto()    # [
     RBRACKET = auto()    # ]
+    COLON_EQ = auto()    # :=
     
     # Logical operators
     AND = auto()         # &
@@ -301,8 +364,11 @@ class Tokenizer:
         'INIT': TokenType.INIT,
         'TRANS': TokenType.TRANS,
         'INVAR':  TokenType.INVAR,
-        'HLTLSPEC': TokenType.HLTLSPEC,
+        'ASSIGN': TokenType.ASSIGN,
         'next': TokenType.NEXT,
+        'init': TokenType.INITVAR,
+        'case': TokenType.CASE,
+        'esac': TokenType.ESAC,
         'TRUE': TokenType.TRUE,
         'FALSE': TokenType.FALSE,
         'boolean': TokenType.BOOLEAN,
@@ -544,8 +610,7 @@ class Tokenizer:
 class Parser: 
     # Section keywords that can start a new section
     SECTION_KEYWORDS = {
-        TokenType.VAR, TokenType.FROZENVAR, TokenType.INIT,
-        TokenType.TRANS, TokenType.INVAR, TokenType.HLTLSPEC, TokenType.MODULE
+        TokenType.VAR, TokenType.FROZENVAR, TokenType.INIT, TokenType.TRANS, TokenType.INVAR, TokenType.ASSIGN, TokenType.MODULE
     }
     
     def __init__(self, tokens: list):
@@ -696,7 +761,15 @@ class Parser:
             expr = self.parse_identifier()
             self.expect(TokenType.RPAREN)
             return NextExpr(expr)
-                
+        
+        # init(expr)
+        if self.match(TokenType.INITVAR):
+            self.advance()
+            self.expect(TokenType.LPAREN)
+            expr = self.parse_identifier()
+            self.expect(TokenType.RPAREN)
+            return NextExpr(expr)
+                        
         # Parenthesized expression
         if self.match(TokenType.LPAREN):
             self.advance()
@@ -710,6 +783,37 @@ class Parser:
         
         self.error(f"Unexpected token in expression: {token}")
     
+    def parse_set_expression(self) -> ASTNode:
+        self.expect(TokenType.LBRACE)
+        elements = []
+        if not self.match(TokenType.RBRACE):
+            elements.append(self.parse_expression())
+            while self.match(TokenType.COMMA):
+                self.advance()
+                elements.append(self.parse_expression())
+        self.expect(TokenType.RBRACE)
+        return SetExpr(elements)
+
+    def parse_case_expression(self) -> ASTNode:
+        self.expect(TokenType.CASE)
+        cases = []
+        while not self.match(TokenType.ESAC):
+            condition = self.parse_expression()
+            self.expect(TokenType.COLON)
+            if self.match(TokenType.LBRACE):
+                result = self.parse_set_expression()
+            else:
+                result = SetExpr([self.parse_expression()])
+            self.expect(TokenType.SEMICOLON)
+            cases.append((condition, result))
+        self.expect(TokenType.ESAC)
+        if not cases:
+            self.error("Case expression must have at least one case.")
+        if cases[-1][0] != BooleanLiteral(True):
+            self.error("The last case in a case expression must have condition TRUE.")
+        return CaseExpr(cases)
+
+
     def parse_identifier(self) -> ASTNode:
         name = self.expect(TokenType.IDENTIFIER).value
         trace = None
@@ -736,6 +840,34 @@ class Parser:
         
         expr = self.parse_expression()
         return QuantifiedExpr(quantifiers, vars, expr)
+    
+    def parse_assignment(self) -> ASTNode:
+        if self.match(TokenType.NEXT):
+            self.advance()
+            self.expect(TokenType.LPAREN)
+            var_name = self.expect(TokenType.IDENTIFIER).value
+            self.expect(TokenType.RPAREN)
+            kind = 'next'
+        elif self.match(TokenType.INITVAR):
+            self.advance()
+            self.expect(TokenType.LPAREN)
+            var_name = self.expect(TokenType.IDENTIFIER).value
+            self.expect(TokenType.RPAREN)
+            kind = 'init'
+        else:
+            var_name = self.expect(TokenType.IDENTIFIER).value
+            kind = 'invar'
+
+        self.expect(TokenType.ASSIGN)
+
+        if self.match(TokenType.CASE):
+            expr = self.parse_case_expression()
+        elif self.match(TokenType.LBRACE):
+            expr = self.parse_set_expression()
+        else:
+            expr = SetExpr([self.parse_expression()])
+        self.expect(TokenType.SEMICOLON)
+        return Assignment(var_name, kind, expr)
     
     # ========================================================================
     # Type Parsing
@@ -778,6 +910,17 @@ class Parser:
         
         return decls
     
+    def parse_assign_section(self) -> list:
+        """Parse ASSIGN section."""
+        self.expect(TokenType.ASSIGN)
+        assignments = []
+        
+        while self.match(TokenType.NEXT, TokenType.INITVAR, TokenType.IDENTIFIER):
+            assignment = self.parse_assignment()
+            assignments.append(assignment)
+        
+        return assignments
+    
     def parse_init_section(self) -> ASTNode:
         """Parse INIT section."""
         self.expect(TokenType.INIT)
@@ -814,11 +957,13 @@ class Parser:
             elif self.match(TokenType.FROZENVAR):
                 module.frozenvar_decls.extend(self.parse_var_section(is_frozen=True))
             elif self.match(TokenType. INIT):
-                module.init_expr = self.parse_init_section()
+                module.init_expr.append(self.parse_init_section())
             elif self.match(TokenType.TRANS):
-                module.trans_expr = self. parse_trans_section()
+                module.trans_expr.append(self.parse_trans_section())
             elif self.match(TokenType. INVAR):
-                module. invar_expr = self.parse_invar_section()
+                module. invar_expr.append(self.parse_invar_section())
+            elif self.match(TokenType.ASSIGN):
+                module.assignments.extend(self.parse_assign_section())
             else:
                 self.error(f"Unexpected token in module:  {self.current()}")
         

@@ -204,6 +204,21 @@ def smv_next_expr_to_z3(expr: ASTNode, state1: dict, state2: dict) -> ExprRef:
     
     raise NotImplementedError(f"Translation for {expr} not implemented.")
 
+def smv_assign_expr_to_z3(expr: ASTNode, var: ExprRef, state: dict) -> ExprRef:
+    if isinstance(expr, SetExpr):
+        values = [smv_expr_to_z3(e, state) for e in expr.elements]
+        return Or([var == v for v in values])
+    elif isinstance(expr, CaseExpr):
+        clauses = []
+        previous_conditions = []
+        for condition, value in expr.cases:
+            cond_z3 = smv_expr_to_z3(condition, state)
+            clauses.append(Implies(And(cond_z3,Not(Or(previous_conditions))), smv_assign_expr_to_z3(value, var, state)))
+            previous_conditions.append(cond_z3)
+        return And(clauses)
+    else:
+        raise NotImplementedError(f"Translation for assignment expression {expr} not implemented.")
+
 # ============================================================================
 # BMC procedure for HyperLTL
 # ============================================================================
@@ -247,19 +262,31 @@ if __name__ == "__main__":
         return decls
     
     def init(module,s):
-        if module.init_expr is None:
-            return BoolVal(True)
-        return smv_expr_to_z3(module.init_expr, s,)
+        exprs = []
+        for e in module.init_expr:
+            exprs.append(smv_expr_to_z3(e, s))
+        for a in module.assignments:
+            if a.kind == 'init':
+                exprs.append(smv_assign_expr_to_z3(a.expr, s[a.var_name], s))
+        return And(exprs)
     
     def trans(module,s1,s2):
-        if module.trans_expr is None:
-            return BoolVal(True)
-        return smv_next_expr_to_z3(module.trans_expr, s1, s2)
-
+        exprs = []
+        for e in module.trans_expr:
+            exprs.append(smv_next_expr_to_z3(e, s1, s2))
+        for a in module.assignments:
+            if a.kind == 'next':
+                exprs.append(smv_assign_expr_to_z3(a.expr, s2[a.var_name], s1))
+        return And(exprs)
+        
     def invar(module,s):
-        if module.invar_expr is None:
-            return BoolVal(True)
-        return smv_expr_to_z3(module.invar_expr, s)
+        exprs = []
+        for i in module. invar_expr:
+            exprs.append(smv_expr_to_z3(i, s))
+        for a in module.assignments:
+            if a.kind == 'invar':
+                exprs.append(smv_assign_expr_to_z3(a.expr, s[a.var_name], s))
+        return And(exprs)
 
     def behavior(module,state,loop,init,trans,invar):
         constraints = [loop >= 0, loop < K, init(module,state[0])]

@@ -1,0 +1,1 @@
+Forall A . Exists B . G((pc_0[A] = pc_0[B] & number_0[A] = number_0[B] & tmp_0[A] = tmp_0[B]) & (pc_1[A] = pc_1[B] & number_1[A] = number_1[B] & tmp_1[A] = tmp_1[B]))

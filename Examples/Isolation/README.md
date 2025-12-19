@@ -12,7 +12,7 @@ Script `equivalence.py` generates a HyperLTL property that can be used to check 
 
 ## Example analyses
 
-| Property     | Bound | Models | Resul   |
+| Property     | Bound | Models | Result   |
 |--------------|-------|--------|---------|
 | `isolation_3x2x2.hq` | 3 | `isolation_rc_3x2x2.smv` `isolation_ser_3x2x2.smv` | SAT |
 | `isolation_3x2x2.hq` | 4 | `isolation_rc_3x2x2.smv` `isolation_ser_3x2x2.smv` | SAT |

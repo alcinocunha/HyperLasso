@@ -33,10 +33,10 @@ VAR
     value_1 : 0..3;
     value_2 : 0..3;
 INIT
-    writes_0_0 > 0 | writes_0_1 > 0 | writes_0_2 > 0 &
-    writes_1_0 > 0 | writes_1_1 > 0 | writes_1_2 > 0 &
-    writes_2_0 > 0 | writes_2_1 > 0 | writes_2_2 > 0 &
-    writes_3_0 > 0 | writes_3_1 > 0 | writes_3_2 > 0 &
+    (writes_0_0 > 0 | writes_0_1 > 0 | writes_0_2 > 0) &
+    (writes_1_0 > 0 | writes_1_1 > 0 | writes_1_2 > 0) &
+    (writes_2_0 > 0 | writes_2_1 > 0 | writes_2_2 > 0) &
+    (writes_3_0 > 0 | writes_3_1 > 0 | writes_3_2 > 0) &
     (writes_0_0 = 0 | writes_1_0 = 0 | writes_0_0 != writes_1_0) &
     (writes_0_0 = 0 | writes_2_0 = 0 | writes_0_0 != writes_2_0) &
     (writes_0_0 = 0 | writes_3_0 = 0 | writes_0_0 != writes_3_0) &

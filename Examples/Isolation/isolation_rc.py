@@ -32,7 +32,7 @@ if __name__ == "__main__":
     constraints = []
 
     for t in range(T):
-        constraints.append(" | ".join([f"writes_{t}_{k} > 0" for k in range(K)]))
+        constraints.append("(" + " | ".join([f"writes_{t}_{k} > 0" for k in range(K)]) + ")")
 
     for k in range(K):
         for t1,t2 in itertools.combinations(range(T),2):

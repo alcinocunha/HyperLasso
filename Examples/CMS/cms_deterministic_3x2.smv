@@ -1,0 +1,41 @@
+MODULE main
+FROZENVAR
+    assigns_0_0 : boolean;
+    assigns_0_1 : boolean;
+    assigns_0_2 : boolean;
+    assigns_1_0 : boolean;
+    assigns_1_1 : boolean;
+    assigns_1_2 : boolean;
+VAR
+    review_0_0 : 0..3;
+    review_0_1 : 0..3;
+    review_0_2 : 0..3;
+    review_1_0 : 0..3;
+    review_1_1 : 0..3;
+    review_1_2 : 0..3;
+    decision_0 : 0..3;
+    decision_1 : 0..3;
+INIT
+    (assigns_0_0 | assigns_0_1 | assigns_0_2) &
+    (assigns_1_0 | assigns_1_1 | assigns_1_2) &
+    (assigns_0_0 | assigns_1_0) &
+    (assigns_0_1 | assigns_1_1) &
+    (assigns_0_2 | assigns_1_2) &
+    review_0_0 = 0 &
+    review_0_1 = 0 &
+    review_0_2 = 0 &
+    review_1_0 = 0 &
+    review_1_1 = 0 &
+    review_1_2 = 0 &
+    decision_0 = 0 &
+    decision_1 = 0
+TRANS
+    (next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_0_0 & review_0_0 = 0 & next(review_0_0) != 0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_0_1 & review_0_1 = 0 & next(review_0_1) != 0 & next(review_0_0) = review_0_0 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_0_2 & review_0_2 = 0 & next(review_0_2) != 0 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_1_0 & review_1_0 = 0 & next(review_1_0) != 0 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_1_1 & review_1_1 = 0 & next(review_1_1) != 0 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_2) = review_1_2 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (assigns_1_2 & review_1_2 = 0 & next(review_1_2) != 0 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(decision_0) = decision_0 & next(decision_1) = decision_1) |
+    (decision_0 = 0 & ((assigns_0_0 -> review_0_0 != 0) & (assigns_0_1 -> review_0_1 != 0) & (assigns_0_2 -> review_0_2 != 0)) & next(decision_0) != 0 & (next(decision_0) = review_0_0 | next(decision_0) = review_0_1 | next(decision_0) = review_0_2) & (next(decision_0) >= review_0_0 & next(decision_0) >= review_0_1 & next(decision_0) >= review_0_2) & next(decision_1) = decision_1 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2) |
+    (decision_1 = 0 & ((assigns_1_0 -> review_1_0 != 0) & (assigns_1_1 -> review_1_1 != 0) & (assigns_1_2 -> review_1_2 != 0)) & next(decision_1) != 0 & (next(decision_1) = review_1_0 | next(decision_1) = review_1_1 | next(decision_1) = review_1_2) & (next(decision_1) >= review_1_0 & next(decision_1) >= review_1_1 & next(decision_1) >= review_1_2) & next(decision_0) = decision_0 & next(review_0_0) = review_0_0 & next(review_0_1) = review_0_1 & next(review_0_2) = review_0_2 & next(review_1_0) = review_1_0 & next(review_1_1) = review_1_1 & next(review_1_2) = review_1_2)
